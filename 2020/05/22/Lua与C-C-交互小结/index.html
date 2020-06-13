@@ -1,12 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang=en>
 <head>
   <meta charset="utf-8">
   
-
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
   
-  <title>Lua与C/C++交互小结 | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <title>Lua与C/C++交互小结 | NullEmpty</title>
   <meta name="description" content="Lua是一种强大、高效、轻量级、可嵌入的脚本语言。它支持过程式编程、面向对象编程、函数式编程、数据驱动编程和数据描述。 Lua C Api提供了一组宿主程序与Lua通信的C函数，所有API函数和相关类型和常量都在头文件lua.h中声明。 I. lua栈介绍Lua使用一个虚拟堆栈与C相互传递值。这个堆栈中的每个元素表示一个Lua值(nil, number, string等)。API中的函数可以通过它">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Lua与C&#x2F;C++交互小结">
@@ -16,70 +27,277 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="data:image/png;base64,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">
 <meta property="article:published_time" content="2020-05-22T14:39:17.000Z">
-<meta property="article:modified_time" content="2020-06-13T14:47:33.135Z">
+<meta property="article:modified_time" content="2020-06-13T17:13:35.929Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="Lua">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAP8AAAD4CAYAAAAjDTByAAAYHUlEQVR4Xu2dCWxVRRfHT6W0LIW0IAgNEJYCSoHgUoVACbvUhShbCxXZGgMqu5AmQhdUtggUWtlsaVECtQqGALLJIiCxUCVshsUlyr4vDQVKKV/O8L3na/vad9/r3ec/CWl739y5Z/7n/ObMzL286/f48ePHhAIFoIB0CvgBful8jg5DAaEA4EcgQAFJFQD8kjoe3YYCgB8xAAUkVQDwS+p4dBsKAH7EABSQVAHAL6nj0W0oAPgRA1BAUgUAv6SOR7ehAOBHDEABSRUA/JI6Ht2GAoAfMQAFJFUA8EvqeHQbCgB+xAAUkFQBwC+p49FtKAD4EQNQQFIFAL+kjke3oQDgRwxAAUkVAPySOh7dhgKAHzEABSRVAPBL6nh0GwoAfsQAFJBUAcAvqePRbSgA+BEDUEBSBQC/pI5Ht6EA4EcMQAFJFQD8kjoe3YYCgB8xAAUkVQDwu3H8Sy+9JGk4yNXtvLw8uTpcqreAH/BLCwDgxyu6ywS/I/PLHhx2HRXg3yeeReavIPMDfnviD/gBf7mRjeCwJ/SOXsG/gB/w25tx+NeDfzHtx7RfuiEAmR+ZH5lBOuyfdBjwA37AD/glVQDwA35JQx+ZH/ADfsAvqQKAH/BLGvrI/IAf8AN+3RR4+PAhFRUVUfXq1XW7pqcL4VYfbvV5ihHbfa535s/Pz6cuXbpQYGAgHTx40DR6mhb+zZs30+zZsyklJYUyMjJo+/btdPXqVerRowfNnz+fWrRooZmIegeHZh1Bw24V0NO/165do3fffZe2bNlCERERgF9JTK5cuZJGjx7trNqtWze6cOECnT59murXr09nz56lgIAAJU15XUfP4PDaOJxQaQX08C9P81NTUykpKYk483MB/Apd54CfQc/NzaWmTZuKNRNn/n379tHu3buJBwQtih7BoYXd7tqcOXMmJSYmur3cqlWrRFaSrejh37///puaN28u/n399dfUuXNnwK800Bzw88jpGrxz586l+Ph4WrduHfXv319pc17V0yM4vDKoEpULCgro3r17ooXhw4eLYHToGRQUJNahshU9/Hvz5k3atGkTDRkyhPz9/cnPzw/wKw00B/yZmZk0YsQI52n896hRo2jt2rUUExOjtDmv6ukRHF4ZpFJlHixbtWpFc+bMES2eOnWK0tLSiGcALVu2FPsrkZGRYl3Kg25ISAht3LhRzLC4XpMmTVSyxNhmjPAv4PfC5w74s7OzKTo6GvB7oV15VUvD3717d6pXrx5NnDiRVq9eTUuXLqWLFy/SyZMniT8bOnQoTZ48mZKTk+nWrVu0d+9eFawwvgnA/8QHpt3tB/zqQ+IK/++//07h4eF0/vx5Cg0NpcLCQrEEYN2bNWsm4P/333+pcePGYibwyiuviLstTz/9tPqG6dyiWvDzXaj09PQS1sfFxZXYqHZ8iMzvhZMBvxdiKazqCv9XX31FU6dOpcuXLzvP7tmzp4Ce70nzbMvxGe8Z1KhRQwwCvGNt9aIW/O42U3mWlJCQUEYiwO9F1AB+L8RSWNUV/q1bt1JUVBTxxlRwcDAVFxeLn8uXL6eGDRuKQeD27dtUu3ZtOnz4ML3wwgtiMOC7L1YvasHPd594xuRa+PYzb/CVLoDfi6jJysqikSNHUk5ODg0aNMh5ZnnHvWjaY1W1gsPjhXSu4Ar/9evXxRSes9SUKVNozZo1NHbsWLHe53U/w88bg++9956YIRw6dIiOHDmis8XaXM4I/wJ+bXypeqtGBIfqnXDT4MCBA8WuPj85yYV38mNjY8VDKJzRFy1aJO6g7NmzR8DPdwb4oSr+yU9choWF6WGm5tcwwr+AX3O3qnMBI4JDHcu9b4W/uf3KlSsCfg5QLgw/r/kvXbpEjhmC9y2b9wwj/Av4zRsPJSwzIjjMJI0DftfNQDPZV1lbZPevQz/T3uqrrIMrc77swcHQHzhwgN5+++3KyGjac2X3L+CvIDQRHKblVhXD4N8nMiLzuwknBIcqjJm2EfgX8JcbnAgO03KrimHwL+AH/KqgZL1GAD/gB/zW41YViwE/4Af8qqBkvUYAP+AH/NbjVhWLAT/gB/yqoGS9RgA/4Af81uNWFYsBP+AH/KqgZL1GAD/gB/zW41YViwE/4Af8qqBkvUYAP+D3CL/1whoWe6NAXl6eN9VtVxfP9rtxqSMz2M7b6FAJBQA/f5sDSgkFMC20d0DAv5j2e5z2y54Z7DoEAH7AD/jtSreHfgF+wA/4Ab+kCgB+wC9p6CPzA37AD/glVQDwA35JQx+ZH/ADfsAvqQI2hP/u3btUrVo1qlKlSqWcisxQKflMfzL8azP4+f3yw4YNoy1btlDfvn0rFYAIjkrJZ/qT4V8bwb9+/XoaMGCA6BHgNz17hhuoN/yPHj0ifpDW3dt7jRTD0s/2Hz9+nCZPnkw7duxwagj4jQwna1xbD/gZ9m+++Ua8FPXo0aNCmPbt29P06dNLvHXaSMUMg5/f+srCpKSkUEZGBm3fvp2uXr1KPXr0oPnz51OLFi086hIXFyfO5QEgJCSEZsyYgczvUTVU0AP+uXPnUnx8vHgB6tChQ6m4uJiys7PFS1HnzZsnXntudDEM/pUrV9Lo0aOd/e/WrRtduHBBvBKaBTt79iwFBARUqM+GDRsoPDxcvDp64cKFYhBA5jc6pMx/fa3hLygooJo1awohrl27RnXr1hW/nz9/nho1aiR+LywspKpVqxoqluHwM+i5ubnUtGlTKioqEpl/3759tHv3buIBQWlZsGABTZkyBfArFUzielrDz4nr008/pSZNmtDHH39cQunWrVuLBHfx4kVq0KCBoV4wHP6kpCRKTEx0iuCYLq1bt4769++vWBzAr1gq6StqDX95Ah87dkys+2vVqkV37twx3A+Gw5+ZmUkjRoxwCsF/jxo1itauXSt28Lt27VpGpL1795aZMgF+w2PJMgYYAf/Dhw/pzTffpG3btok9LV6iGl0Mh583QaKjo93Cz++H54d2Spf79+9TYGBgicOA3+hQss719Yaf1/cjR46kNWvWUOfOnWnPnj2muO1navhjYmKIN09Klxo1apQ5BvitA5/RlqoFP99pSk9PL9EdvgPlupGdn58vbu1xxo+IiBB3tYKDg42WQFzf9PArVQnwK1UK9dSCf+bMmSX2q1jZ5ORkSkhIECLfunWLoqKi6JdffhE/c3JyKCgoyDQOAPxuXKFWcJjGyzCkhAJq+ZfvTvGU3rXw7Wl+ku/GjRvUu3dv+u2338Qe1rJlywy/tVc6DAyDPysrS6yDeDTkaZGjlHfcU/zyw0KTJk0S06s+ffp4ql7h52oFR6WMwMmaKaCHf2NjY8Ua/8MPP6TFixeTn5+fZv3xtWHD4PfVYD3O0yM49OgHruFeAa39y9P8Tp06iYtHRka63bTmJBcaGmqoiwA/pv2GBqARF9ca/s8++0w8w19ROXPmjHgy1cgC+AG/kfFnyLW1ht+QTvlwUcAP+H0IG2ufAvif+A/wA35rk+yD9YAf8JcbNggOH4iy0CnwL+AH/BYCVk1TAT/gB/xqEmWhtgA/4Af8FgJWTVMBP+AH/GoSZaG2AD/gB/wWAlZNUwE/4Af8ahJlobYAP+AH/BYCVk1TAT/gB/xqEmWhtgA/4Af8FgJWTVMBP+D3CL+aAYe2zKdAXl6e+YzS0SI82+9GbEdm0NEPuJQBCgB+fqkYSgkFMC20d0DAv5j2e5z2y54Z7DoEAH7AD/jtSreHfgF+wA/4Ab+kCgB+wC9p6CPzA37AD/glVQDwA35JQx+ZH/ADfsAvqQKAH/BLGvrI/IAf8AN+SRUA/IBf0tBH5gf8gB/wS6oA4Af8koY+Mj/gB/yAX1IFAD/glzT0kfkBP+AH/JIqAPgBv6Shj8wP+AE/4JdUAcAP+CUNfWR+wA/4Ab+kCpgU/qKiIiosLKSAgADy9/cXVio9ppYnkRnUUtKc7cC/JoU/NTWVxo8fT4mJiZSUlCSsVHpMrVCzc3Dcv3+f+Dtbq1ev7pRL6TG19DW6HTv71xttTffV3WlpaTRu3DgBPg8AXJQe86bjFdW1c3D4+fmJrhcUFDgHAKXH1NLX6HbU9q/SwdNdPSO1MB38RorhuLbawWGGPjlscIB+7949qlatmjis9JiZ+lEZW9T2r9LB0129yvSjsucCfjcKqh0clXUSzldXAbX9q3TwdFdP3Z551xrgB/zeRYwNaqsNv1UlAfyA36qx67PdgP+JdIAf8PsMkVVPBPyAv9zYRXBYFWtldsO/gB/wK2PFdrUAP+AH/LbDWlmHAD/gB/zKWLFdLcAP+AG/7bBW1iHAD/gBvzJWbFcL8AN+wG87rJV1CPADfsCvjBXb1QL8gB/w2w5rZR0C/IDfI/zKQgm1rKpAXl6eVU1XxW483utGRkdmUEVhNGJaBQA/f60LSgkFMC20d0DAv5j2e5z2y54Z7DoEAH7AD/jtSreHfgF+wA/4Ab+kCgB+wC9p6CPzA37AD/glVQDwA35JQx+ZH/ADfsAvqQKAH/BLGvrI/IAf8AN+SRWwGPwPHjygwMBAXZyFzKCLzIZdBP61APznzp0T7+vbtGkTXblyherXr0+vvfYazZo1ixo2bKhZ8CA4NJPWFA3DvyaH/9KlSxQREUE8APTu3ZsiIyNp3759tGPHDmrUqBH9+uuvYjDQoiA4tFDVPG2a2b/FxcXiJapBQUGaC2ba/9X3ySefUEJCAsXHx9Ps2bOdQkyaNIlSUlJo3rx5NHXqVE0EMnNwaNJhyRo1s3/j4uIoIyOD7ty5Q7Vq1dLUM6aFf8WKFbR7927iQSAsLMwpwvr162nAgAHiNd6LFy/WRBwzB4cmHZasUTP6t7CwkJKTk8WSlovU8JcXj4MHD6Zvv/2WvvzyS+JRUotixuDQop+ytqm3f/v27Us8nd++fbtbyTdu3EgTJ06kv/76y/k54C8l1c6dO6lXr15irX/q1CkKDg7WJH71Dg5NOoFGy1XAV//y/lNMTAxNmDBBgJqTk0NnzpyhDh06iCUqx6a7Eh4eTkVFRSJm3ZXGjRvT7du3adGiRbRu3TravHkzMr+rUAcOHKDOnTuLQz/88ANFRUVpFt6+BodmBqFhVRXw1b8M77PPPuu0pU2bNlS3bl2xEc3l6NGj1K5duzK2eoI/PT1dLGVDQkKoX79+xDMBZP7/y8hisChcVq9eTbGxsaoGQ+nGfA0OTY1C46op4Kt/XeF3TUCc9Xlvitfs/DvPBjhmHSUpKUn86vjJv7/++uvUunXrMn164403kPkdqmRnZ9OQIUPEn3y/n0XTuvgaHFrbhfbVUcBX/zrg5xno/v37ncY4ZqXjx48XU3fHpnRF1vKSYdCgQYC/PJGysrJo5MiR4pYHb5Z07NhRHe97aMXX4NDFOFyk0gp48u/7779Phw8fLnGdtLQ0ce+dp/0jRoygzMxM5+ec6Vu1akVjxoyhpUuX0o0bN+jkyZPOz6Ojo4l387///nvnMW6nTp06gN+dN0+cOEFt27YV4Ofm5tJzzz1XaacrbcBTcChtB/XMqYAn/3bt2tW5jnf0YNeuXRQaGirgHzt2LC1ZsqRc+Ev32tOa37U+pv1ExLdHtm3bJuB3l/F5Z3XatGmaRJen4NDkomhUNwU8+Zf/H8mjR49K2FOtWjWxlgf8GruJhff396/wKsOHDydeFmhRPAWHFtdEm/op4Kt/HWt+bzM//38Uvs+/detWj51E5vcokbYVfA0Oba1C62op4Kt/fYXfG7sBvzdqaVDX1+DQwBQ0qYECvvr3jz/+oJYtWxJvCH7xxRdOy8o77ovpjvv8+fn5mv/nHtM+2++LcGqd42twqHV9tKOtAvDvE30Bv5s4Q3BoC5/RrcO/gL/cGERwGI2ntteHfwE/4NeWMdO2DvgBP+A3LZ7aGgb4AT/g15Yx07YO+AE/4DctntoaBvgBP+DXljHTtg74AT/gNy2e2hoG+AE/4NeWMdO2DvgBP+A3LZ7aGgb4AT/g15Yx07YO+AG/R/hNG70wTBUF8vLyVGnHqo3g2X43nnNkBqs6FXYrUwDwP378WJlU8tTCtNDevoZ/Me33OO2XPTPYdQgA/IAf8NuVbg/9AvyAH/ADfkkVAPyAX9LQR+YH/IAf8EuqAOAH/JKGPjI/4Af8gF9SBQA/4Jc09JH5AT/gB/ySKmBB+O/evUv8zrQqVapo6jRkBk3lNbxx+Ndi8K9evZqGDRtGW7ZsES/x1LIgOLRU1/i24V8Lwb9+/XoaMGCAsBjwGw+P1S0A/BaA//jx4zR58mTasWOHM94Av9XRM95+wG8B+OPi4igjI0MMACEhITRjxgxkfhd2Tpw4QW3btnUeqVWrFnXs2JEWL14s3iNfUbly5QotW7aMEhISqKioiGbNmkXjxo0TOtu9AH4LwL9hwwYKDw+nsLAwWrhwoRgEkPn/Q9MB/8mTJ6lu3bp0+/ZtmjdvHu3fv5/4s4rKxo0b6aOPPiJ+7fSNGzfE+ZcuXaJnnnnG7uwT4LcA/K5RuGDBApoyZQrgd5P5r1+/TnXq1BGffPfdd/TBBx/Q5cuXxd8//vgjLVmyRPzs1q2beLV09erVxaDK2Z+P8d88qDZv3px27dpF9+/fp7S0NFq1apV4JXVKSgpFRkbSwYMHac6cOeJaOTk5FBERQZ9//jlNmDBBDCKTJk2i+Ph40w8eesD/1ltvCY1ffvllMRM7dOgQNWvWjEaNGkXjx48nPz8/w3WyzDf5AP6yseLI/NOnT6caNWrQzZs3xVSeZ0mjR4+mY8eOUfv27Sk5OZm6d+8upvh8u5RnBitWrKC5c+eKQeHOnTsiSPfs2UOdOnWiV199lerVq0cTJ04kvsuydOlSunjxIvEMg9vh99MPHjyY3nnnHTp37hytXLmSateuTQMHDhSzCLMvHfSAn2dQPLhyqV+/Pr344otigOXCeo4ZMwbwK1UA8JcPf48ePSgwMJCuXbsmMszUqVNFhuZ1fGZmJv3555/i5NzcXLEncPr0aQGyu2k/zyI4Y50/f55CQ0OpsLBQtM2Ac+Zi+HkA4cFm7NixYoDhwYQLDwC8VOM6Zi56wp+YmEg8OPv7+4uBtnfv3mIWtXfvXsMlQuZ34wI9gkMNzzsyv+u0/8iRI9ShQwcxCHB2f/Tokdg05fLw4UMKCAign376SewPuIN/27ZtYvBwLBv4vJ49ewqgu3TpQv369RMzBS7Tpk2je/fuUWpqqvi7cePGlJWVJeqbuejhX0fmLygoEMsqLryxWrVqVWrVqpVYJhldAL/N4OevZHzqqadozZo1IitztuG1Ohe+ddquXTv6559/iAcJd/AfPnyYoqKixBIiODiYiouLxc/ly5dTw4YNKTo62jkwyA4/D6rp6eklIojvUPGSy7Fx6jqIckU+HhQU5JyNGTkAAH4bwM9rdV5nP3jwgLKzs4mXSGfOnBGQ9+rVS0zFearJGZ13+XlXf+fOndS/f38x/We4a9asKWYErVu3pgYNGoj9Ad5g5UGEp/dcj9f9gP+/gJk5cybxtN618P4Ka1ce5IDfh+EOa/6yopW+z8812rRpI4KPIeXiGqA83eSnJXlNf+HCBXr++efFphQvB3jX/+effxbrd960i42Npfz8fLFZtWjRIoqJiRGDA2/0ObKZ7Jmfp/G8J+JaeFnF63vA7wPk5Z3Ct5v4VhKvSfv06aNiy2Wb0mNNqGkHSjXOcPM6ne/luxZeIvCanTfvuPBGHs8AuPBnPDAw/Ga4LaWmXnr4F/Cr6TEd29IjOHTsDi5VSgE9/Av4LRp2egSHRaWxhdl6+BfwWzRU9AgOi0pjC7Ph3ydutMxuv55Rh+DQU239rwX/Av5yow7BoT+Qel4R/gX8gF9P4kx0LcAP+AG/iYDU0xTAD/gBv57EmehagB/wA34TAamnKYAf8AN+PYkz0bUAP+AH/CYCUk9TAD/gB/x6EmeiawF+wA/4TQSknqYAfsAP+PUkzkTXAvyA3yP8JopXmKKBAnl5eRq0ap0m8Wy/G185MoN13AhLfVEA8PO3NqBAASggnQLI/NK5HB2GAljzIwaggNQKIPNL7X50XmYFAL/M3kffpVYA8EvtfnReZgUAv8zeR9+lVgDwS+1+dF5mBQC/zN5H36VWAPBL7X50XmYFAL/M3kffpVYA8EvtfnReZgUAv8zeR9+lVgDwS+1+dF5mBQC/zN5H36VWAPBL7X50XmYFAL/M3kffpVYA8EvtfnReZgUAv8zeR9+lVuB/BSEgCSvUkc8AAAAASUVORK5CYILoo+9SKwD4pQ4/Oi+zAoBf5uij71IrAPilDj86L7MCgF/m6KPvUisA+KUOPzovswKAX+boo+9SK/A/tatH60rzeEwAAAAASUVORK5CYILJf0//oUOHii5jcjfdn1J2RwsNwiRkfP5bmz2TI0U4/H0mesS5557rzKxPem25Da/Ta303se6JrF+/Xi688EK3SajLH72q8/HHH7v9D91E7dixo+zYscNtHo4ZM0Y6dOjgwkY3XlOvtkmfmeiyRfeUcjddRur+CGESg9A42hD08qReetQ1/bXXXhvpSC3W1JGewGGda1joPoe+lyR30yWR7nnoZqo23VjVGYo2vU+DRsMkDpcxffKy0Jcw8alYCe7LwmwlGE+JH7qFvoRJibeJnxOwMJufkdJLUQhY6EuYFEWZUvgYC7OVQmwl5pTQ96BUib2aY+lUzGZJ274W+hImZq7DbGaogxRCX8LEzHiYzQx1kELoS5iYGQ+zmaEOUgh9CRMz42E2M9RBCqEvYWJmPMxmhjpIIfQlTMyMh9nMUAcphL6EiZnxMJsZ6iCF0JcwMTMeZjNDHaQQ+hImZsbDbGaogxRCX8LEzHiYzQx1kELoS5iYGS9lNrOCFApCICsrK0jduBTlszkGShAmBpBjUIIw0b9aQ4MABCBQTALMTIoJkIdDAALsmeABCEDAIwFmJh5h0hUEkkyAMEmy+pw7BDwSIEw8wqQrCCSZAGGSZPU5dwh4JECYeIRJVxBIMgHCJMnqc+4Q8EiAMPEIk64gkGQChEmS1efcIeCRAGHiESZdQSDJBAiTJKvPuUPAIwHCxCNMuoJAkgkQJklWn3OHgEcChIlHmHQFgSQTIEySrD7nDgGPBAgTjzDpCgJJJkCYJFl9zh0CHgn8H2CGl6+pC48WAAAAAElFTkSuQmCC">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://yoursite.com/2020/05/22/Lua%E4%B8%8EC-C-%E4%BA%A4%E4%BA%92%E5%B0%8F%E7%BB%93/index.html">
   
     <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
   
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
   
   
 <link rel="stylesheet" href="/css/style.css">
 
+  
+  
+  
+  
 <meta name="generator" content="Hexo 4.2.1"></head>
 
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
+
+<body class="main-center theme-purple" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
       
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/NullEmpty" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">NullEmpty</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Software Developer &amp; Designer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
       </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
     </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-links">
+          <a href="/links">
+            
+            <i class="icon icon-friendship"></i>
+            
+            <span class="menu-title">Links</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/NullEmpty" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    </nav>
   </div>
 </header>
-      <div class="outer">
-        <section id="main"><article id="post-Lua与C-C-交互小结" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/05/22/Lua%E4%B8%8EC-C-%E4%BA%A4%E4%BA%92%E5%B0%8F%E7%BB%93/" class="article-date">
-  <time datetime="2020-05-22T14:39:17.000Z" itemprop="datePublished">2020-05-22</time>
-</a>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BC%80%E5%8F%91/">开发</a><span class="category-list-count">3</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lua/" rel="tag">Lua</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UE4/" rel="tag">UE4</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web/" rel="tag">Web</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%BC%80%E5%8F%91/">开发</a>
+              </p>
+              <p class="item-title">
+                <a href="/2020/06/13/Lua%E7%BB%93%E5%90%88UE4%E5%8F%8D%E5%B0%84/" class="title">Lua结合UE4反射</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-06-13T12:00:37.000Z" itemprop="datePublished">2020-06-13</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%BC%80%E5%8F%91/">开发</a>
+              </p>
+              <p class="item-title">
+                <a href="/2020/05/22/Lua%E4%B8%8EC-C-%E4%BA%A4%E4%BA%92%E5%B0%8F%E7%BB%93/" class="title">Lua与C/C++交互小结</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-05-22T14:39:17.000Z" itemprop="datePublished">2020-05-22</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%BC%80%E5%8F%91/">开发</a>
+              </p>
+              <p class="item-title">
+                <a href="/2019/06/01/%E7%A7%BB%E5%8A%A8%E7%AB%AF%E4%B8%8A%E8%8E%B7%E5%8F%96web%E6%80%A7%E8%83%BD%E6%95%B0%E6%8D%AE%E6%96%B9%E5%BC%8F/" class="title">移动端上获取web性能数据方式</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-06-01T14:32:51.000Z" itemprop="datePublished">2019-06-01</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
     
   </div>
-  <div class="article-inner">
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#I-lua栈介绍"><span class="toc-number">1.</span> <span class="toc-text">I. lua栈介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#II-常用c-api"><span class="toc-number">2.</span> <span class="toc-text">II. 常用c api</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#III-C调用Lua"><span class="toc-number">3.</span> <span class="toc-text">III. C调用Lua</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-在C中调用Lua的方法核心是lua-call、lua-pcall等方法"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 在C中调用Lua的方法核心是lua_call、lua_pcall等方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-下面例子在C中调用Lua中的函数及修改Lua中的变量"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 下面例子在C中调用Lua中的函数及修改Lua中的变量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IV-Lua调用C"><span class="toc-number">4.</span> <span class="toc-text">IV. Lua调用C</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-C函数的定义"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 C函数的定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-注册C函数"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 注册C函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-批量注册C函数"><span class="toc-number">4.3.</span> <span class="toc-text">4.3 批量注册C函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-下面例子在Lua中调用C函数"><span class="toc-number">4.4.</span> <span class="toc-text">4.4 下面例子在Lua中调用C函数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#V-Lua调用C-的处理"><span class="toc-number">5.</span> <span class="toc-text">V. Lua调用C++的处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-大概原理"><span class="toc-number">5.1.</span> <span class="toc-text">5.1 大概原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-具体可以按下面步骤"><span class="toc-number">5.2.</span> <span class="toc-text">5.2 具体可以按下面步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-下面例子在Lua中调用C-对象的方法"><span class="toc-number">5.3.</span> <span class="toc-text">5.3 下面例子在Lua中调用C++对象的方法</span></a></li></ol></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Lua与C-C-交互小结" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
-    
-      <header class="article-header">
+    <div class="article-header">
+      
         
   
     <h1 class="article-title" itemprop="name">
@@ -87,9 +305,34 @@
     </h1>
   
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2020/05/22/Lua%E4%B8%8EC-C-%E4%BA%A4%E4%BA%92%E5%B0%8F%E7%BB%93/" class="article-date">
+	  <time datetime="2020-05-22T14:39:17.000Z" itemprop="datePublished">2020-05-22</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/%E5%BC%80%E5%8F%91/">开发</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Lua/" rel="tag">Lua</a>
+  </span>
+
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2020/05/22/Lua%E4%B8%8EC-C-%E4%BA%A4%E4%BA%92%E5%B0%8F%E7%BB%93/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
       
         <p><a href="https://www.lua.org/manual/5.3/" target="_blank" rel="noopener">Lua</a>是一种强大、高效、轻量级、可嵌入的脚本语言。它支持过程式编程、面向对象编程、函数式编程、数据驱动编程和数据描述。</p>
 <p><a href="https://www.lua.org/manual/5.3/manual.html#4.8" target="_blank" rel="noopener">Lua C Api</a>提供了一组宿主程序与Lua通信的C函数，所有API函数和相关类型和常量都在头文件lua.h中声明。</p>
@@ -210,140 +453,230 @@
 
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/05/22/Lua%E4%B8%8EC-C-%E4%BA%A4%E4%BA%92%E5%B0%8F%E7%BB%93/" data-id="ckbdrbz8j00000al73l4b35dg" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lua/" rel="tag">Lua</a></li></ul>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2020/05/22/Lua%E4%B8%8EC-C-%E4%BA%A4%E4%BA%92%E5%B0%8F%E7%BB%93/" title="Lua与C/C++交互小结" target="_blank" rel="external">http://yoursite.com/2020/05/22/Lua%E4%B8%8EC-C-%E4%BA%A4%E4%BA%92%E5%B0%8F%E7%BB%93/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
 
-    </footer>
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/NullEmpty" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/NullEmpty" target="_blank"><span class="text-dark">NullEmpty</span><small class="ml-1x">Software Developer &amp; Designer</small></a></h3>
+        <div>查无此人。</div>
+      </div>
+    </figure>
   </div>
+</div>
+
+
+    </div>
+  </article>
   
     
-<nav id="article-nav">
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
   
-    <a href="/2020/06/13/Lua%E7%BB%93%E5%90%88UE4%E5%8F%8D%E5%B0%84/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          Lua结合UE4反射
-        
-      </div>
-    </a>
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2020/06/13/Lua%E7%BB%93%E5%90%88UE4%E5%8F%8D%E5%B0%84/" title="Lua结合UE4反射"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2019/06/01/%E7%A7%BB%E5%8A%A8%E7%AB%AF%E4%B8%8A%E8%8E%B7%E5%8F%96web%E6%80%A7%E8%83%BD%E6%95%B0%E6%8D%AE%E6%96%B9%E5%BC%8F/" title="移动端上获取web性能数据方式"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn collapsed" data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">
+        <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
   
   
-    <a href="/2019/06/01/%E7%A7%BB%E5%8A%A8%E7%AB%AF%E4%B8%8A%E8%8E%B7%E5%8F%96web%E6%80%A7%E8%83%BD%E6%95%B0%E6%8D%AE%E6%96%B9%E5%BC%8F/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">移动端上获取web性能数据方式</div>
-    </a>
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
   
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+    
+  </div>
+  </div>
 </nav>
-
   
-</article>
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/H5%E6%80%A7%E8%83%BD/" rel="tag">H5性能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lua/" rel="tag">Lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lua-UE4/" rel="tag">Lua UE4</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/H5%E6%80%A7%E8%83%BD/" style="font-size: 10px;">H5性能</a> <a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/Lua-UE4/" style="font-size: 10px;">Lua UE4</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2020/06/13/hello-world/">Hello World</a>
-          </li>
-        
-          <li>
-            <a href="/2020/06/13/Lua%E7%BB%93%E5%90%88UE4%E5%8F%8D%E5%B0%84/">Lua结合UE4反射</a>
-          </li>
-        
-          <li>
-            <a href="/2020/05/22/Lua%E4%B8%8EC-C-%E4%BA%A4%E4%BA%92%E5%B0%8F%E7%BB%93/">Lua与C/C++交互小结</a>
-          </li>
-        
-          <li>
-            <a href="/2019/06/01/%E7%A7%BB%E5%8A%A8%E7%AB%AF%E4%B8%8A%E8%8E%B7%E5%8F%96web%E6%80%A7%E8%83%BD%E6%95%B0%E6%8D%AE%E6%96%B9%E5%BC%8F/">移动端上获取web性能数据方式</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2020 John Doe<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/NullEmpty" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
 </footer>
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
     
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: '',
+    appKey: '',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-
-
-  
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-
-  
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
+     
 
 
 
 
-<script src="/js/script.js"></script>
 
 
 
-
-  </div>
 </body>
 </html>
